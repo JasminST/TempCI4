@@ -1,0 +1,95 @@
+DOCS:
+#Fases:
+    ACT- TEMPLATE: 
+        - Inicializar DB
+        - Init Ci 4
+    0. Análisis
+        - Gantt
+        - RF y RNF
+    1. Implementación
+        Inicial
+            - Subir al servidor
+            - Ver migraciones
+        Avanzada
+            - MÓDULOS PRINCIPALES
+        Final
+            - MÓDULOS SECUNDARIOS
+    2. Testing
+        - UNIT
+        - INTEGRALES
+        - CARGA
+    3. Deploy
+    4. Mantenimiento
+    5. Cierre
+#Requisitos:
+    - 
+#Carpetas Importantes
+    - app
+        - Controllers: Todos los controladores
+        - Models: Todos los modelos 
+    - public: Se colocan todos los recursos que se accederán de forma directa
+        theme.rar: archivo rar con el theme comprimido
+        - theme
+            - assets: archivos básicos para la template
+            - examples: vistas que se reutilizarán de la template original
+        - resources
+            - assets (css, js): estilos y js añadidos al template
+            - img: imágenes de la apliación
+            - pdf: para guardar los archivos pdf
+            - documentation
+                - DOCS: este archivo con la descripción Básica del proyecto
+                - TemplateControllers: controladores de proyectos pasados para reutilizar
+    - Acceso a las paginas de ejemplo>
+        # Material Oscuro
+        - dark> file:///C:/Users/SDISEPA/Documents/sw/SW-Internos/SD_Liquidaciones/IErpSD/public/theme/src/dark/index.html
+        # Menu arriba
+        - horizontal> file:///C:/Users/SDISEPA/Documents/sw/SW-Internos/SD_Liquidaciones/IErpSD/public/theme/src/horizontal/index.html
+        - horizontal-rtl> file:///C:/Users/SDISEPA/Documents/sw/SW-Internos/SD_Liquidaciones/IErpSD/public/theme/src/horizontal-rtl/index.html
+        # Lateral con iconos
+        - iconbar> file:///C:/Users/SDISEPA/Documents/sw/SW-Internos/SD_Liquidaciones/IErpSD/public/theme/src/iconbar/index.html
+        # Lateral con imagen e iconos
+        - material> file:///C:/Users/SDISEPA/Documents/sw/SW-Internos/SD_Liquidaciones/IErpSD/public/theme/src/material/index.html
+        - material-rtl> file:///C:/Users/SDISEPA/Documents/sw/SW-Internos/SD_Liquidaciones/IErpSD/public/theme/src/material-rtl/index.html
+        # Lateral small
+        - minisidebar> file:///C:/Users/SDISEPA/Documents/sw/SW-Internos/SD_Liquidaciones/IErpSD/public/theme/src/minisidebar/index.html
+        # Menu arriba
+        - overlay> file:///C:/Users/SDISEPA/Documents/sw/SW-Internos/SD_Liquidaciones/IErpSD/public/theme/src/overlay/index.html
+#Controladores:
+    - Login
+    - Usuario
+        - Listar/Crear/Modificar/Eliminar #Supervisor
+        - Ver Perfil
+
+INICIALIZAR ESTE PROYECTO>
+    1. Clonar en el servidor
+    2. Verificar entorno (php con librerías, mariadb o mysql, composer 2.0)
+        - php.ini debe tener>  
+            extension=curl
+            extension=gd
+            extension=intl
+            extension=mbstring
+            extension=mysqli
+            extension=openssl
+            extension=pdo_mysql
+    3. Extraer archivos de theme.rar y excluirlos en .git/info/exclude
+        # Excluir estos directorios (tema, firmas y pdf)
+        public/theme
+        public/resources/imgsignat
+        public/resources/twigpdf
+    4. Ejecutar: composer update (Actualizar librerias composer para php spark)
+    5. Copiar el archivo env y cambiar por .env, colocar credenciales de la base de datos
+    6. Ejecutar migraciones: php spark migrate
+    7. Ejecutar Seeders: php spark db:seed LoginSeeder
+    8. Ejecutar DBViews.sql (Vistas y otras cosas que no se pueden hacer en migraciones): sudo mysql dbasistenciarp < public/recursos/DBViews.sql > output.tab
+    9. Configuración de apache (enable site, etc)
+    10. [Opcional] Configurar CertBot para https en la página
+    11. Encryption: url> usuarios/showkey, se muestra una clave que se colocará en .env con hex2bin: como prefijo
+
+Procedimientos:
+    $IMPLEMENTAR UNA VISTA A PARTIR DE UN EJEMPLO
+        1. Localizar la vista en theme/src, ej. chart-echart-bar
+        2. Crear funcion en controlador
+        3. Localizar css y js, colocarlos en la funcion para que se pasen a la vista
+        4. Crear la vista en su respectiva Carpetas
+        5. Localizar div content fluid y colocarlo en la sección content de la nueva vista
+        6. Si hay un js que se deba modificar copiar su contenido y colocarlo en la sección js

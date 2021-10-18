@@ -1,0 +1,94 @@
+// PDF
+    // Install
+        - Pegar las librerías en app/ThirdParty
+        - Hacer el archivo twig (Colocar donde se requiera)
+        - Instalar>
+            - composer require daycry/twig 
+            - composer require dompdf/dompdf
+        - En cada Controlador>
+            - Colocar la función PDF
+
+    //Controller -> Twig
+        public function pdf($id)
+        {
+            $t = false; //Testing?
+            $dompdf = new \Dompdf\Dompdf();
+            $dompdf->getOptions()->setChroot(ROOTPATH . 'public');
+            $d = [];
+            $d["reg"] = (object) $this->model->db
+                ->table($this->model->tab)
+                ->select($this->model->did." as id, date(FechPm01) as fecha, time(FechPm01) as hora, date(FechfPm01) as fechaf, time(FechfPm01) as horaf, u.LogUsu, ".$this->model->psdn)
+                ->join($this->model->tab2." s1", "s1.".$this->model->did2." = ".$this->model->tab.".IdS1")
+                ->join($this->model->tab2." s2", "s2.".$this->model->did2." = ".$this->model->tab.".IdS2")
+                ->join("usuarios u", "u.IdUsu = ".$this->model->tab.".IdTrab")
+                ->where([$this->model->did => $id])->get()->getResultArray()[0];
+
+            $ly = [
+                base_url('/resources/imagenes/L1.png'),
+                base_url('/resources/imagenes/L2.png'),
+                base_url('/resources/imagenes/L3.png'),
+                base_url('/resources/imagenes/l21.png'),
+                base_url('/resources/imagenes/l31.png'),
+            ];
+            $d["js"] = [
+
+            ];
+            $d["css"] = [
+
+            ];
+            PrintForm::println("DATA: ",["doc" => $d], $t);
+            if(!$t){
+                $dompdf->loadHtml($this->twig->render('ctrl_pm01/pm01.html',["doc" => $d, "ly" => $ly]));
+                $dompdf->setPaper('A2', 'portrait');
+                // $dompdf->setPaper('A3', 'landscape');
+                $dompdf->render();
+                file_put_contents('resources/twigpdf/Brochure.pdf', $dompdf->output());
+                $dompdf->stream("Brochure.pdf", array("Attachment" => false));
+            }else{
+                echo $this->twig->render('ctrl_pm01/pm01.html',["doc" => $d, "ly" => $ly]);
+            }
+        }
+
+// SIGNATURE
+    //View>
+
+        <form>
+            <div class="col-md-12 mb-3">
+                <canvas class="pad" style="border: 5px solid black;"></canvas>
+                <input type="hidden" name="output" id="output" class="output">
+                <fieldset>
+                    <input class="btn btn-info" type="button" value="Limpiar" />
+                </fieldset>
+            </div>
+        </form>
+
+    //JS>
+
+        $('form').signaturePad({
+            drawOnly: true,
+            defaultAction: 'drawIt',
+            validateFields: false,
+            lineWidth: 0,
+            output: 'input[name=output]',
+            sigNav: null,
+            name: null,
+            typed: null,
+            clear: 'input[type=button]',
+            typeIt: null,
+            drawIt: null,
+            typeItDesc: null,
+            drawItDesc: null,
+        }).regenerate([{"lx":139,"ly":63,"mx":139,"my":62}]);
+
+    //PHP Controller
+
+        array_push($d["js"],base_url('resources/assets/js/sigpad/jquery.signaturepad.js'));
+        array_push($d["js"],base_url('resources/assets/js/sigpad/json2.min.js'));
+        array_push($d["css"],base_url('resources/assets/js/sigpad/jquery.signaturepad.css'));
+
+        //Save Img
+        $json = "";
+        $img = sigJsonToImage(json_decode($json),["imageSize" => [400,200]]);
+        imagepng($img, 'resources/imgsignat/signature.png');
+        imagedestroy($img);
+        $d["img"] = base_url("resources/imgsignat/signature.png");

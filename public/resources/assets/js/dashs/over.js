@@ -1,0 +1,2 @@
+demo.initOverviewDashboard();
+demo.initCirclePercentage();

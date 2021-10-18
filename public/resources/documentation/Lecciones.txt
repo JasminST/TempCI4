@@ -1,0 +1,16 @@
+11-05-2021:
+    Problema: ajax no recibía los datos enviados usando post, pero esto funcionaba en la copia local mas no en el servidor
+    Solución: la url tenía un caracter '/' al final, lo que impide que el apache envie los datos
+20-05-2021
+    Problema: modelo no actualizaba dato, se tenía que sumar un valor al actual y no se quiere hacer la consulta
+    Solución: al ejecutar set se le puede añadir un booleano como tercer parámetro, así toma el segundo como literal y no como valor
+    Codigo: ->set("AcuPers","AcuPers + (".$r["hor"].")",false)
+26-05-2021
+    L1:
+        Problema: se tiene que actualizar personal añadiendole las horas acumuladas de sus asistencias
+        Solución: al ejecutar un update se puede hacer un join para utilizar los datos de las asistencias junto con los de personal
+        Codigo: $q2 = $mp->db->query("update personal p join asistencias a on a.IdPers = p.IdPers set p.AcuPers = p.AcuPers + a.AcuAsis where a.IdAsis IN $dt");
+    L2:
+        Problema: se tiene que actualizar un campo de la bd, pero no se puede utilizar el drop table (se perderían datos)
+        Solución: Desactivar los drop de las migraciones y utilizando forge y modifyColumn cambiar lo necesario
+        URL: https://codeigniter4.github.io/userguide/dbmgmt/forge.html?highlight=forge#renaming-a-table
