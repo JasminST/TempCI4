@@ -33,7 +33,7 @@ $b = isset($dtreg);
           </div>
           <div class="card-footer">
             <div class="text-center">
-              <a class="btn btn-success ajaxctrl-save" style=" color: white; display: <?= ($b2 ? "none" : "true")  ?>;">Actualizar</a>
+              <a class="btn btn-success ajaxctrl-save" style=" color: white; display: <?= ($b2 ? "none" : "true")  ?>;">Guardar</a>
               <a onclick="window.history.back()" class="btn btn-danger" style="color: white;">Volver</a>
             </div>
           </div>

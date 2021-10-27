@@ -202,7 +202,7 @@ class Ctrl_fej extends BaseController
 				"class" => '',
 				"wdth" => 0, //Peso, si llega a 12 nuevo row
 				"type" => 'input', //select, input, legend, check, button, text
-				"data" => ['type' => 'hidden', 'name' => 'IdFej', 'id' => 'IdFej'], //Opciones, si es un select, sino Otros atributos
+				"data" => ['type' => 'hidden', 'name' => 'IdFej', 'id' => 'IdFej', 'class' => 'IdFej'], //Opciones, si es un select, sino Otros atributos
 			],
 			[// 4 Fecha creacion
 				"class" => 'col-md-4 mb-3', //Clase del div que lo contiene
@@ -216,7 +216,7 @@ class Ctrl_fej extends BaseController
 				"wdth" => 4, //Peso, si llega a 12 nuevo row
 				"type" => 'input', //select, input, legend, check, button, text
 				"label" => 'Fecha de modificación',
-				"data" => ['type' => 'date','name' => 'FmodiFej', 'id' => 'FmodiFej', 'class' => 'form-control FmodiFej' ], //Opciones, si es un select, sino Otros atributos
+				"data" => ['type' => 'date','name' => 'FmodiFej', 'id' => 'FmodiFej', 'class' => 'form-control FmodiFej', "disabled" => "true",  'value' => date("Y-m-d"), ], //Opciones, si es un select, sino Otros atributos
 			],
 			[// 4 ID Usu
 				"class" => 'col-md-4 mb-3', //Clase del div que lo contiene
@@ -242,12 +242,16 @@ class Ctrl_fej extends BaseController
 		PrintForm::println("dt",$dt,$t);
 		try {
 			$ctrlM = new Ctrl_fejModel(); //referencia a modelo
+			$id = $this->request->getVar('IdFej');
 			$d = [
 				'FcreFej' =>$this->request->getVar('FcreFej'),
 				'FmodiFej'=>$this->request->getVar('FmodiFej'),
 				'IdUsu' =>$this->request->getVar('IdUsu'),
 			];
-			$ctrlM->insert($d);
+			
+			if ($id==true) { $ctrlM->update($id, $d); }
+			else { $ctrlM->insert($d); }
+			
 			PrintForm::printlq($this->model,$t);
 		} catch (\Throwable $th) {
 			return $this->setResponseFormat('json')->respond(["r" => false, "msg" => "Error"]);
@@ -266,12 +270,14 @@ class Ctrl_fej extends BaseController
 		try {
 			$ctrlM = new Ctrl_fejModel(); //referencia a modelo
 			$id= $this->request->getVar('IdFej');
+			
 			$d = [
 				'FcreFej' =>$this->request->getVar('FcreFej'),
 				'FmodiFej'=>$this->request->getVar('FmodiFej'),
 				'IdUsu' =>$this->request->getVar('IdUsu')
 			];
-			$ctrlM->update($id, $d);
+			
+			
 			PrintForm::printlq($this->model,$t);
 		} catch (\Throwable $th) {
 			return $this->setResponseFormat('json')->respond(["r" => false, "msg" => "Error"]);
