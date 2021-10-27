@@ -223,35 +223,9 @@ class Ctrl_fej extends BaseController
 				"wdth" => 4, //Peso, si llega a 12 nuevo row
 				"type" => 'input', //select, input, legend, check, button, text
 				"label" => 'Id usuario',
-				"data" => ['type' => 'text', 'name' => 'IdUsu', 'id' => 'IdUsu', 'class' => 'form-control' ] //Opciones, si es un select, sino Otros atributos
+				"data" => ['type' => 'text', 'name' => 'IdUsu', 'id' => 'IdUsu', 'class' => 'form-control IdUsu ' ] //Opciones, si es un select, sino Otros atributos
 			],
-		];
-
-		$d["inp2"] = [//crear de Inputs
-				
-			[// 2 Fecha creacion
-				"class" => 'col-md-6 mb-4', //Clase del div que lo contiene
-				"wdth" => 6, //Peso, si llega a 12 nuevo row
-				"type" => 'input', //select, input, legend, check, button, text
-				"label" => 'Fecha de creación Nuevo',
-				"data" => ['type' => 'date','name' => 'FcreFej', 'id' => 'FcreFej', 'class' => 'form-control FcreFej'], //Opciones, si es un select, sino Otros atributos
-			],
-			[// 3 Fecha modificacion
-				"class" => 'col-md-6 mb-4', //Clase del div que lo contiene
-				"wdth" => 6, //Peso, si llega a 12 nuevo row
-				"type" => 'input', //select, input, legend, check, button, text
-				"label" => 'Fecha de modificación Nuevo',
-				"data" => ['type' => 'date','name' => 'FmodiFej', 'id' => 'FmodiFej', 'class' => 'form-control FmodiFej'], //Opciones, si es un select, sino Otros atributos
-			],
-			[// ID Usu
-				"class" => 'col-md-6 mb-4', //Clase del div que lo contiene
-				"wdth" => 6, //Peso, si llega a 12 nuevo row
-				"type" => 'input', //select, input, legend, check, button, text
-				"label" => 'Id usuario Nuevo',
-				"data" => ['type' => 'text', 'name' => 'IdUsu', 'id' => 'IdUsu', 'class' => 'form-control IdUsu' ] //Opciones, si es un select, sino Otros atributos
-			],
-		];
-		
+		];		
 		return $d;
 	}
 
@@ -271,7 +245,7 @@ class Ctrl_fej extends BaseController
 			$d = [
 				'FcreFej' =>$this->request->getVar('FcreFej'),
 				'FmodiFej'=>$this->request->getVar('FmodiFej'),
-				'IdUsu' =>$this->request->getVar('IdUsu')
+				'IdUsu' =>$this->request->getVar('IdUsu'),
 			];
 			$ctrlM->insert($d);
 			PrintForm::printlq($this->model,$t);

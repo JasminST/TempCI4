@@ -55,7 +55,7 @@ $b = isset($dtreg);
 $(document).ready(function() {
   $(document).on('click', '.ajaxctrl-save', function() { 
     var data = {
-
+      'IdFej': $('.IdFej').val(),
       'FcreFej': $('.FcreFej').val(),
       'FmodiFej': $('.FmodiFej').val(),
       'IdUsu': $('.IdUsu').val(),
