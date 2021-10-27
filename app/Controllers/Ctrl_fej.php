@@ -1,16 +1,17 @@
 <?php
-
 namespace App\Controllers;
 
 use App\Controllers\BaseController;
+use App\Models\Ctrl_fejModel;
 use CodeIgniter\API\ResponseTrait;
+use App\Libraries\PrintForm;
 //Por adaptar al ejemplo general
 class Ctrl_fej extends BaseController
 {
 	use ResponseTrait;
 	public function __construct() {
 		$this->data = [
-			'title' => 'SD - Formato Ejemplo',
+			'title' => 'SD - Ejemplo',
 			'ctrl' => 'ctrl_fej',
 			'rol' => null,
 		];
@@ -41,7 +42,7 @@ class Ctrl_fej extends BaseController
 			base_url('theme/src/assets/extra-libs/toastr/dist/build/toastr.min.css'),
 			base_url('theme/dist/css/style.css'),
 		];
-		$this->model = model("LiqsModel");
+		$this->model = model("Ctrl_fejModel");
 		if(session()->get("IdTUsu")) $this->data["rol"] = session()->get()["IdTUsu"];
 		helper('form');
 	}
@@ -51,20 +52,19 @@ class Ctrl_fej extends BaseController
 
 		$d = $this->data;
 		$d["cols"] = json_encode([
-			["data"=> 'FcreLiq', "title"=> "Fecha", "className"=> "text-center"], //Fecha
-			["data"=> 'NroLiq', "title"=> "Nº Liq", "className"=> "text-center"], //Nro
-			["data"=> 'TotLiq', "title"=> "Total", "className"=> "text-center"], //Total
-			["data"=> 'SalLiq', "title"=> "Saldo", "className"=> "text-center"], //Saldo
-			["data"=> 'EstLiq', "title"=> "Estado", "className"=> "text-center"], //Estado (pastillas)
+			["data"=> 'IdFej', "title"=> "Id", "className"=> "text-center"], //Id
+			["data"=> 'FcreFej', "title"=> "Fecha Creacion", "className"=> "text-center"], //Fecha
+			["data"=> 'FmodiFej', "title"=> "Fecha Modificacion", "className"=> "text-center"], //Fecha
+			//["data"=> 'IdUsu', "title"=> "Usuario", "className"=> "text-center"], //Usuario
+			["data"=> 'NomUsu', "title"=> "Usuario", "className"=> "text-center"], //Usuario
 			["data"=> null, "defaultContent" => "", "title" => "ACCIONES"], //Acciones
 		]);
-		$d["colsr"] = json_encode([ //Columnas liqs trabajadores
-			["data"=> 'FcreLiq', "title"=> "Fecha", "className"=> "text-center"], //Fecha
-			["data"=> 'LogUsu', "title"=> "Usuario", "className"=> "text-center", "visible"=> true], //Nro
-			["data"=> 'NroLiq', "title"=> "Nº Liq", "className"=> "text-center"], //Nro
-			["data"=> 'TotLiq', "title"=> "Total", "className"=> "text-center"], //Total
-			["data"=> 'SalLiq', "title"=> "Saldo", "className"=> "text-center"], //Saldo
-			["data"=> 'EstLiq', "title"=> "Estado", "className"=> "text-center"], //Estado (pastillas)
+		$d["colsr"] = json_encode([ //Columnas ctrl_fej trabajadores
+			["data"=> 'IdFej', "title"=> "Id", "className"=> "text-center"], //Id
+			["data"=> 'FcreFej', "title"=> "Fecha Creacion", "className"=> "text-center"], //Fecha
+			["data"=> 'FmodiFej', "title"=> "Fecha Modificacion", "className"=> "text-center"], //Fecha
+			//["data"=> 'IdUsu', "title"=> "Usuario", "className"=> "text-center"], //Usuario
+			["data"=> 'NomUsu', "title"=> "Usuario", "className"=> "text-center"], //Usuario
 			["data"=> null, "defaultContent" => "", "title" => "ACCIONES"], //Acciones
 		]);
 		//JS
@@ -75,7 +75,7 @@ class Ctrl_fej extends BaseController
 			array_push($d["css"],base_url('theme/dist/css/style.min.css'));
 			array_push($d["css"],'https://cdnjs.cloudflare.com/ajax/libs/jquery.perfect-scrollbar/1.5.0/css/perfect-scrollbar.min.css');
 		
-		return view('liqs/lista',$d);
+		return view('ctrl_fej/lista',$d);
 	}
 	public function nueva()
 	{
@@ -83,10 +83,13 @@ class Ctrl_fej extends BaseController
 		$d = $this->data;
 		$d["id"] = null;
 		$d["dtreg"] = null;
+
 		$b = false; //Desactivado?
-		$d = array_merge($d,$this->preProc());
-		$d = array_merge($d,$this->getInp(["plu"=>$d["lu"],"id"=>null,"plgp"=>$d["plgp"],"b"=>$b]));
 		$d["b2"] = $b;
+
+		//$d = array_merge($d,$this->preProc());
+		$d = array_merge($d,$this->getInp([]));
+		
 		// JS
 			array_push($d["js"],'https://cdnjs.cloudflare.com/ajax/libs/jquery.perfect-scrollbar/1.5.0/perfect-scrollbar.min.js');
 			array_push($d["js"],base_url('theme/src/assets/libs/select2/dist/js/select2.full.min.js'));
@@ -103,19 +106,20 @@ class Ctrl_fej extends BaseController
 			array_push($d["css"],base_url('theme/src/assets/libs/dropzone/dist/min/dropzone.min.css'));
 			array_push($d["css"],'https://cdnjs.cloudflare.com/ajax/libs/jquery.perfect-scrollbar/1.5.0/css/perfect-scrollbar.min.css');
 
-		return view('liqs/editar',$d);
+		return view('ctrl_fej/editar',$d);
 	}
 	public function editar($id)
 	{
 		if(!session()->get("IdUsu")) return redirect()->to('/login');
+		
 		$d = $this->data;
-		$d["dtreg"] = $this->model->select("*,date(FupdLiq) as FupdLiq, date(FcreLiq) as FcreLiq")->find($id);
+		$d["dtreg"] = $this->model->find($id);
 		$d["id"] = $id;
 
 		$b = false; //Desactivado?
 		$d["b2"] = $b;
-		$d = array_merge($d,$this->preProc());
-		$d = array_merge($d,$this->getInp(["plu"=>$d["lu"],"id"=>null,"plgp"=>$d["plgp"],"b"=>$b]));
+		//$d = array_merge($d,$this->preProc());
+		$d = array_merge($d,$this->getInp([])); //le mando un arreglo vacio 
 		// JS
 			array_push($d["js"],'https://cdnjs.cloudflare.com/ajax/libs/jquery.perfect-scrollbar/1.5.0/perfect-scrollbar.min.js');
 			array_push($d["js"],base_url('theme/src/assets/libs/select2/dist/js/select2.full.min.js'));
@@ -131,14 +135,16 @@ class Ctrl_fej extends BaseController
 			array_push($d["css"],base_url('theme/src/assets/libs/select2/dist/css/select2.min.css'));
 			array_push($d["css"],base_url('theme/src/assets/libs/dropzone/dist/min/dropzone.min.css'));
 			array_push($d["css"],'https://cdnjs.cloudflare.com/ajax/libs/jquery.perfect-scrollbar/1.5.0/css/perfect-scrollbar.min.css');
-
-		return view('liqs/editar',$d);
+		
+		$fej = new Ctrl_fejModel(); //referencia a modelo
+		$d["fej"]=$fej->where('IdFej', $id)->first();
+		return view('ctrl_fej/editar',$d);
 	}
 	public function ver($id)
 	{
 		if(!session()->get("IdUsu")) return redirect()->to('/login');
 		$d = $this->data;
-		$d["dtreg"] = $this->model->select("*,date(FupdLiq) as FupdLiq, date(FcreLiq) as FcreLiq")->find($id);
+		//$d["dtreg"] = $this->model->select("*,date(FupdLiq) as FupdLiq, date(FcreLiq) as FcreLiq")->find($id);
 		$d["id"] = $id;
 
 		$b = true; //Desactivado?
@@ -161,8 +167,9 @@ class Ctrl_fej extends BaseController
 			array_push($d["css"],base_url('theme/src/assets/libs/dropzone/dist/min/dropzone.min.css'));
 			array_push($d["css"],'https://cdnjs.cloudflare.com/ajax/libs/jquery.perfect-scrollbar/1.5.0/css/perfect-scrollbar.min.css');
 
-		return view('liqs/editar',$d);
+		return view('ctrl_fej/editar',$d);
 	}
+
 	public function preProc()
 	{
 		$d = [];
@@ -180,6 +187,7 @@ class Ctrl_fej extends BaseController
 		$d["plgp"] = $plgp;
 		return $d;
 	}
+	
 	public function getInp($a)
 	{
 		/*
@@ -194,406 +202,155 @@ class Ctrl_fej extends BaseController
 				"class" => '',
 				"wdth" => 0, //Peso, si llega a 12 nuevo row
 				"type" => 'input', //select, input, legend, check, button, text
-				"data" => ['type' => 'hidden', 'name' => 'IdLiq', 'id' => 'IdLiq'], //Opciones, si es un select, sino Otros atributos
+				"data" => ['type' => 'hidden', 'name' => 'IdFej', 'id' => 'IdFej'], //Opciones, si es un select, sino Otros atributos
 			],
-			[//Legend Encabezado
-				"class" => 'col-md-12', //Clase del div que lo contiene
-				"wdth" => 12, //Peso, si llega a 12 nuevo row
-				"type" => 'legend', //select, input, legend, check, button, text
-				"label" => 'Encabezado',
-			],
-			[// 2 Modificacion
-				"class" => 'col-md-2 mb-3', //Clase del div que lo contiene
-				"wdth" => 2, //Peso, si llega a 12 nuevo row
-				"type" => 'input', //select, input, legend, check, button, text
-				"label" => 'Modificación',
-				"data" => ['type' => 'date','name' => 'FupdLiq', 'id' => 'FupdLiq', 'class' => 'form-control', "disabled" => "true", 'value' => date("Y-m-d"),], //Opciones, si es un select, sino Otros atributos
-			],
-			[// 2 Creación
-				"class" => 'col-md-2 mb-3', //Clase del div que lo contiene
-				"wdth" => 2, //Peso, si llega a 12 nuevo row
-				"type" => 'input', //select, input, legend, check, button, text
-				"label" => 'Creación',
-				"data" => ['type' => 'date','name' => 'FcreLiq', 'id' => 'FcreLiq', 'class' => 'form-control', 'disabled' => "true", 'value' => date("Y-m-d"),], //Opciones, si es un select, sino Otros atributos
-			],
-			[//Legend Datos
-				"class" => 'col-md-12', //Clase del div que lo contiene
-				"wdth" => 12, //Peso, si llega a 12 nuevo row
-				"type" => 'legend', //select, input, legend, check, button, text
-				"label" => 'Datos',
-			],
-			[// 4 Nro Liq
-				"class" => 'col-md-4 mb-4', //Clase del div que lo contiene
+			[// 4 Fecha creacion
+				"class" => 'col-md-4 mb-3', //Clase del div que lo contiene
 				"wdth" => 4, //Peso, si llega a 12 nuevo row
 				"type" => 'input', //select, input, legend, check, button, text
-				"label" => 'Nombre Liquidación (Nº)',
-				"disabled" => $a["b"],
-				'valid-feed' => "Correcto",
-				'invalid-feed' => "Campo Obligatorio",
-				"data" => ['type' => 'text','name' => 'NroLiq', 'id' => 'NroLiq', 'class' => 'form-control', 'required' => 'true', ], //Opciones, si es un select, sino Otros atributos
+				"label" => 'Fecha de creación',
+				"data" => ['type' => 'date','name' => 'FcreFej', 'id' => 'FcreFej', 'class' => 'form-control FcreFej', "disabled" => "true", 'value' => date("Y-m-d"),], //Opciones, si es un select, sino Otros atributos
 			],
-			[// 4 Centro Costos
-				"class" => 'col-md-4 mb-4', //Clase del div que lo contiene
+			[// 4 Fecha modificacion
+				"class" => 'col-md-4 mb-3', //Clase del div que lo contiene
 				"wdth" => 4, //Peso, si llega a 12 nuevo row
 				"type" => 'input', //select, input, legend, check, button, text
-				"label" => 'Centro de Costos',
-				"disabled" => $a["b"],
-				"data" => ['type' => 'text','name' => 'CcosLiq', 'id' => 'CcosLiq', 'class' => 'form-control', ], //Opciones, si es un select, sino Otros atributos
+				"label" => 'Fecha de modificación',
+				"data" => ['type' => 'date','name' => 'FmodiFej', 'id' => 'FmodiFej', 'class' => 'form-control FmodiFej' ], //Opciones, si es un select, sino Otros atributos
 			],
-			[// 4 OC
-				"class" => 'col-md-4 mb-4', //Clase del div que lo contiene
+			[// 4 ID Usu
+				"class" => 'col-md-4 mb-3', //Clase del div que lo contiene
 				"wdth" => 4, //Peso, si llega a 12 nuevo row
 				"type" => 'input', //select, input, legend, check, button, text
-				"label" => 'OC (Nº)',
-				"disabled" => $a["b"],
-				"data" => ['type' => 'text','name' => 'OcLiq', 'id' => 'OcLiq', 'class' => 'form-control', ], //Opciones, si es un select, sino Otros atributos
-			],
-			[// 4 Tipo
-				"class" => 'col-md-4 mb-4', //Clase del div que lo contiene
-				"wdth" => 4, //Peso, si llega a 12 nuevo row
-				"type" => 'select', //select, input, legend, check, button, text
-				"label" => 'Tipo Liq',
-				"disabled" => $a["b"],
-				"data" => ['name' => 'TipoLiq', 'class' => 'select2 form-control custom-select', "style" => "width: 100%;",], //Opciones, si es un select, sino Otros atributos
-				"options" => ["1" => "Normal","2" => "Especial",], //Opciones, si es un select, sino Otros atributos
-			],
-			[// 4 Estado
-				"class" => 'col-md-4 mb-4', //Clase del div que lo contiene
-				"wdth" => 4, //Peso, si llega a 12 nuevo row
-				"type" => 'select', //select, input, legend, check, button, text
-				"label" => 'Estado',
-				"disabled" => $a["b"],
-				"data" => ['name' => 'EstLiq', 'class' => 'select2 form-control custom-select', "style" => "width: 100%;",], //Opciones, si es un select, sino Otros atributos
-				"options" => ["0" => "Pendiente","1" => "Pagada",], //Opciones, si es un select, sino Otros atributos
-			],
-			[// 4 Revisor
-				"class" => 'col-md-4 mb-4', //Clase del div que lo contiene
-				"wdth" => 4, //Peso, si llega a 12 nuevo row
-				"type" => 'select', //select, input, legend, check, button, text
-				"label" => 'Revisor',
-				"disabled" => $a["b"],
-				"data" => ['name' => 'IdRevisor', 'class' => 'select2 form-control custom-select', "style" => "width: 100%;",], //Opciones, si es un select, sino Otros atributos
-				"options" => $a['plu'], //Opciones, si es un select, sino Otros atributos
+				"label" => 'Id usuario',
+				"data" => ['type' => 'text', 'name' => 'IdUsu', 'id' => 'IdUsu', 'class' => 'form-control' ] //Opciones, si es un select, sino Otros atributos
 			],
 		];
-		$d["inp2"] = [//Lista de Inputs Tabla Items
-			[//Legend Items
-				"class" => 'col-md-12', //Clase del div que lo contiene
-				"wdth" => 12, //Peso, si llega a 12 nuevo row
-				"type" => 'legend', //select, input, legend, check, button, text
-				"label" => 'Lista Items',
-			],
-			[// Button Nuevo Item
-				"class" => "col-md-12",
-				"wdth" => 12, //select, input, legend, check, button, text
-				"type" => "button",
-				"label" => "Nuevo Item",
-				"disabled" => $a["b"],
-				"icon" => "fas fa-plus",
-				"data" => ["class"=>"btn btn-primary", 'id' => "btitems", 'style' => "color: white;",], //"data-toggle"=>"modal", "data-target"=>"#mitems",
-			],
-			[// Tabla de Items
-				"class" => "col-md-12 text-center",
-				"wdth" => 12, //select, input, legend, check, button, text
-				"type" => "text",
-				"text" => '<table id="titems" class="table table-striped table-bordered display" style="width:100%"></table>'
-			],
-			[// Total texto
-				"class" => "col-md-6 text-center",
-				"wdth" => 6, //select, input, legend, check, button, text
-				"type" => "text",
-				"text" => "<p class='pull-right'>Total:</p>"
-			],
-			[// Total Soles Input
-				"class" => 'col-md-2 mb-3', //Clase del div que lo contiene
-				"wdth" => 2, //Peso, si llega a 12 nuevo row
+
+		$d["inp2"] = [//crear de Inputs
+				
+			[// 2 Fecha creacion
+				"class" => 'col-md-6 mb-4', //Clase del div que lo contiene
+				"wdth" => 6, //Peso, si llega a 12 nuevo row
 				"type" => 'input', //select, input, legend, check, button, text
-				"data" => ['type' => 'number','name' => 'TotLiq', 'id' => 'TotLiq', 'class' => 'form-control', 'disabled' => "true",], //Opciones, si es un select, sino Otros atributos
+				"label" => 'Fecha de creación Nuevo',
+				"data" => ['type' => 'date','name' => 'FcreFej', 'id' => 'FcreFej', 'class' => 'form-control FcreFej'], //Opciones, si es un select, sino Otros atributos
 			],
-			[// Total Soles Input
-				"class" => 'col-md-2 mb-3', //Clase del div que lo contiene
-				"wdth" => 4, //Peso, si llega a 12 nuevo row
+			[// 3 Fecha modificacion
+				"class" => 'col-md-6 mb-4', //Clase del div que lo contiene
+				"wdth" => 6, //Peso, si llega a 12 nuevo row
 				"type" => 'input', //select, input, legend, check, button, text
-				"data" => ['type' => 'number','name' => 'TotdLiq', 'id' => 'TotdLiq', 'class' => 'form-control', 'disabled' => "true",], //Opciones, si es un select, sino Otros atributos
+				"label" => 'Fecha de modificación Nuevo',
+				"data" => ['type' => 'date','name' => 'FmodiFej', 'id' => 'FmodiFej', 'class' => 'form-control FmodiFej'], //Opciones, si es un select, sino Otros atributos
 			],
-			[// Dinero Entregado texto
-				"class" => "col-md-6 text-center",
-				"wdth" => 6, //select, input, legend, check, button, text
-				"type" => "text",
-				"text" => "<p class='pull-right'>Dinero Entregado:</p>"
-			],
-			[// Dinero Entregado Soles Input
-				"class" => 'col-md-2 mb-3', //Clase del div que lo contiene
-				"wdth" => 2, //Peso, si llega a 12 nuevo row
+			[// ID Usu
+				"class" => 'col-md-6 mb-4', //Clase del div que lo contiene
+				"wdth" => 6, //Peso, si llega a 12 nuevo row
 				"type" => 'input', //select, input, legend, check, button, text
-				"data" => ['type' => 'number','name' => 'EntrLiq', 'id' => 'EntrLiq', 'class' => 'form-control', 'disabled' => "true",], //Opciones, si es un select, sino Otros atributos
-			],
-			[// Dinero Entregado Soles Input
-				"class" => 'col-md-2 mb-3', //Clase del div que lo contiene
-				"wdth" => 4, //Peso, si llega a 12 nuevo row
-				"type" => 'input', //select, input, legend, check, button, text
-				"data" => ['type' => 'number','name' => 'EntrdLiq', 'id' => 'EntrdLiq', 'class' => 'form-control', 'disabled' => "true",], //Opciones, si es un select, sino Otros atributos
-			],
-			[// Saldo texto
-				"class" => "col-md-6 text-center",
-				"wdth" => 6, //select, input, legend, check, button, text
-				"type" => "text",
-				"text" => "<p class='pull-right'>Saldo:</p>"
-			],
-			[// Saldo Soles Input
-				"class" => 'col-md-2 mb-3', //Clase del div que lo contiene
-				"wdth" => 2, //Peso, si llega a 12 nuevo row
-				"type" => 'input', //select, input, legend, check, button, text
-				"data" => ['type' => 'number','name' => 'SalLiq', 'id' => 'SalLiq', 'class' => 'form-control', 'disabled' => "true",], //Opciones, si es un select, sino Otros atributos
-			],
-			[// Saldo Soles Input
-				"class" => 'col-md-2 mb-3', //Clase del div que lo contiene
-				"wdth" => 4, //Peso, si llega a 12 nuevo row
-				"type" => 'input', //select, input, legend, check, button, text
-				"data" => ['type' => 'number','name' => 'SaldLiq', 'id' => 'SaldLiq', 'class' => 'form-control', 'disabled' => "true",], //Opciones, si es un select, sino Otros atributos
+				"label" => 'Id usuario Nuevo',
+				"data" => ['type' => 'text', 'name' => 'IdUsu', 'id' => 'IdUsu', 'class' => 'form-control IdUsu' ] //Opciones, si es un select, sino Otros atributos
 			],
 		];
-		$d["inp3"] = [//Lista de Inputs Tabla Pago
-			[//Legend Pago
-				"class" => 'col-md-12', //Clase del div que lo contiene
-				"wdth" => 12, //Peso, si llega a 12 nuevo row
-				"type" => 'legend', //select, input, legend, check, button, text
-				"label" => 'Lista Pagos',
-			],
-			[// Button Nuevo Pago
-				"class" => "col-md-12",
-				"wdth" => 12, //select, input, legend, check, button, text
-				"type" => "button",
-				"label" => "Nuevo Pago",
-				"disabled" => $a["b"],
-				"icon" => "fas fa-plus",
-				"data" => ["class"=>"btn btn-primary", "data-toggle"=>"modal", "data-target"=>"#mpagos", 'style' => "color: white;",],
-			],
-			[//Tabla de Pagos
-				"class" => "col-md-12 text-center",
-				"wdth" => 12, //select, input, legend, check, button, text
-				"type" => "text",
-				"text" => '<table id="tpagos" class="table table-striped table-bordered display" style="width:100%"></table>'
-			],
-			[// Total texto
-				"class" => "col-md-6 text-center",
-				"wdth" => 6, //select, input, legend, check, button, text
-				"type" => "text",
-				"text" => "<p class='pull-right'>Total:</p>"
-			],
-			[// Saldo Soles Input
-				"class" => 'col-md-2 mb-3', //Clase del div que lo contiene
-				"wdth" => 2, //Peso, si llega a 12 nuevo row
-				"type" => 'input', //select, input, legend, check, button, text
-				"data" => ['type' => 'number','name' => 'EntrLiq', 'id' => 'EntrLiq', 'class' => 'form-control', 'disabled' => "true",], //Opciones, si es un select, sino Otros atributos
-			],
-			[// Saldo Soles Input
-				"class" => 'col-md-2 mb-3', //Clase del div que lo contiene
-				"wdth" => 4, //Peso, si llega a 12 nuevo row
-				"type" => 'input', //select, input, legend, check, button, text
-				"data" => ['type' => 'number','name' => 'EntrdLiq', 'id' => 'EntrdLiq', 'class' => 'form-control', 'disabled' => "true",], //Opciones, si es un select, sino Otros atributos
-			],
-		];
-		$d["inpit"] = [//Lista de Inputs Item
-			[// ID
-				"class" => '',
-				"wdth" => 0, //Peso, si llega a 12 nuevo row
-				"type" => 'input', //select, input, legend, check, button, text
-				"data" => ['type' => 'hidden', 'name' => 'IdItem', 'id' => 'IdItem'], //Opciones, si es un select, sino Otros atributos
-			],
-			[// ID liq
-				"class" => '',
-				"wdth" => 0, //Peso, si llega a 12 nuevo row
-				"type" => 'input', //select, input, legend, check, button, text
-				"data" => ['type' => 'hidden', 'name' => 'IdLiq',"value"=>$a['id']], //Opciones, si es un select, sino Otros atributos
-			],
-			[// Fecha
-				"class" => 'col-md-12 mb-3', //Clase del div que lo contiene
-				"wdth" => 12, //Peso, si llega a 12 nuevo row
-				"type" => 'input', //select, input, legend, check, button, text
-				"disabled" => $a["b"],
-				"data" => ['type' => 'date','name' => 'FechItem', 'id' => 'FechItem', 'class' => 'form-control', 'value' => date("Y-m-d"),], //Opciones, si es un select, sino Otros atributos
-			],
-			[//Legend Datos
-				"class" => 'col-md-12', //Clase del div que lo contiene
-				"wdth" => 12, //Peso, si llega a 12 nuevo row
-				"type" => 'legend', //select, input, legend, check, button, text
-				"label" => 'Datos',
-			],
-			[// Lugar
-				"class" => 'col-md-6 mb-3', //Clase del div que lo contiene
-				"wdth" => 6, //Peso, si llega a 12 nuevo row
-				"type" => 'input', //select, input, legend, check, button, text
-				"disabled" => $a["b"],
-				"data" => ['type' => 'text','name' => 'LugarItem', 'id' => 'LugarItem', "placeholder" => "Lugar", 'class' => 'form-control',], //Opciones, si es un select, sino Otros atributos
-			],
-			[// Num Doc
-				"class" => 'col-md-6 mb-3', //Clase del div que lo contiene
-				"wdth" => 6, //Peso, si llega a 12 nuevo row
-				"type" => 'input', //select, input, legend, check, button, text
-				"disabled" => $a["b"],
-				"data" => ['type' => 'text','name' => 'NdocItem', 'id' => 'NdocItem', "placeholder" => "Num Doc", 'class' => 'form-control',"required" => "true"], //Opciones, si es un select, sino Otros atributos
-			],
-			[// Establecimiento
-				"class" => 'col-md-6 mb-3', //Clase del div que lo contiene
-				"wdth" => 6, //Peso, si llega a 12 nuevo row
-				"type" => 'input', //select, input, legend, check, button, text
-				"disabled" => $a["b"],
-				"data" => ['type' => 'text','name' => 'EstabItem', 'id' => 'EstabItem', "placeholder" => "Establecimiento", 'class' => 'form-control',], //Opciones, si es un select, sino Otros atributos
-			],
-			[// Descripcion
-				"class" => 'col-md-6 mb-3', //Clase del div que lo contiene
-				"wdth" => 6, //Peso, si llega a 12 nuevo row
-				"type" => 'input', //select, input, legend, check, button, text
-				"disabled" => $a["b"],
-				"data" => ['type' => 'text','name' => 'DescItem', 'id' => 'DescItem', "placeholder" => "Descripción", 'class' => 'form-control',], //Opciones, si es un select, sino Otros atributos
-			],
-			[// Grupo Presupuesto
-				"class" => 'col-md-6 mb-3', //Clase del div que lo contiene
-				"wdth" => 3, //Peso, si llega a 12 nuevo row
-				"type" => 'select', //select, input, legend, check, button, text
-				"label" => 'Grupo',
-				"disabled" => $a["b"],
-				"data" => ["name"=>"IdGpres","id"=>"IdGpres", 'class' => 'form-control', "style" => "width: 100%;", "required" => "true"], //Opciones, si es un select, sino Otros atributos
-				"options" => $a["plgp"], //Opciones, si es un select, sino Otros atributos
-			],
-			[// Presupuesto
-				"class" => 'col-md-6 mb-3', //Clase del div que lo contiene
-				"wdth" => 3, //Peso, si llega a 12 nuevo row
-				"type" => 'select', //select, input, legend, check, button, text
-				"label" => 'Presupuesto',
-				"disabled" => $a["b"],
-				"data" => ['name' => 'IdPres',"id"=>"IdPres", 'class' => 'form-control', "style" => "width: 100%;", "required" => "true"], //Opciones, si es un select, sino Otros atributos
-				"options" => ["" => "Seleccionar",], //Opciones, si es un select, sino Otros atributos
-			],
-			[// Observación
-				"class" => 'col-md-12 mb-3', //Clase del div que lo contiene
-				"wdth" => 12, //Peso, si llega a 12 nuevo row
-				"type" => 'textarea', //select, input, legend, check, button, text
-				"disabled" => $a["b"],
-				"data" => ['type' => 'text', 'name' => 'ObsItem', 'id' => 'ObsItem', "placeholder" => "Observación", 'rows' => '3', 'class' => 'form-control',], //Opciones, si es un select, sino Otros atributos
-			],
-			[//Legend Costo
-				"class" => 'col-md-12', //Clase del div que lo contiene
-				"wdth" => 12, //Peso, si llega a 12 nuevo row
-				"type" => 'legend', //select, input, legend, check, button, text
-				"label" => 'Costos',
-			],
-			[// Soles
-				"class" => 'col-md-6 mb-3', //Clase del div que lo contiene
-				"wdth" => 6, //Peso, si llega a 12 nuevo row
-				"type" => 'input', //select, input, legend, check, button, text
-				"disabled" => $a["b"],
-				"preigtext" => 'S/.',
-				"data" => ['type' => 'number','name' => 'CostItem', 'id' => 'CostItem', "min" => "0", "max" => "1000", 'class' => 'form-control',], //Opciones, si es un select, sino Otros atributos
-			],
-			[// Dolares
-				"class" => 'col-md-6 mb-3', //Clase del div que lo contiene
-				"wdth" => 6, //Peso, si llega a 12 nuevo row
-				"type" => 'input', //select, input, legend, check, button, text
-				"disabled" => $a["b"],
-				"preigtext" => '$',
-				"data" => ['type' => 'number','name' => 'CostdItem', 'id' => 'CostdItem', "min" => "0", "max" => "1000", 'class' => 'form-control',], //Opciones, si es un select, sino Otros atributos
-			],
-		];
-		$d["inppg"] = [//Lista de Inputs Pagos
-			[// ID
-				"class" => '',
-				"wdth" => 0, //Peso, si llega a 12 nuevo row
-				"type" => 'input', //select, input, legend, check, button, text
-				"data" => ['type' => 'hidden', 'name' => 'IdPago', 'id' => 'IdPago'], //Opciones, si es un select, sino Otros atributos
-			],
-			[// ID liq
-				"class" => '',
-				"wdth" => 0, //Peso, si llega a 12 nuevo row
-				"type" => 'input', //select, input, legend, check, button, text
-				"data" => ['type' => 'hidden', 'name' => 'IdLiq',"value"=>$a['id']], //Opciones, si es un select, sino Otros atributos
-			],
-			[// Fecha
-				"class" => 'col-md-12 mb-3', //Clase del div que lo contiene
-				"wdth" => 12, //Peso, si llega a 12 nuevo row
-				"type" => 'input', //select, input, legend, check, button, text
-				"disabled" => $a["b"],
-				"data" => ['type' => 'date','name' => 'FechPago', 'id' => 'FechPago', 'class' => 'form-control', 'value' => date("Y-m-d"),], //Opciones, si es un select, sino Otros atributos
-			],
-			[//Legend Datos
-				"class" => 'col-md-12', //Clase del div que lo contiene
-				"wdth" => 12, //Peso, si llega a 12 nuevo row
-				"type" => 'legend', //select, input, legend, check, button, text
-				"label" => 'Datos',
-			],
-			[// Num Oper
-				"class" => 'col-md-6 mb-3', //Clase del div que lo contiene
-				"wdth" => 6, //Peso, si llega a 12 nuevo row
-				"type" => 'input', //select, input, legend, check, button, text
-				"disabled" => $a["b"],
-				"data" => ['type' => 'text','name' => 'NoperPago', 'id' => 'NoperPago', "maxlenght" => "45", "placeholder" => "Num Operación", 'class' => 'form-control','required' => true,], //Opciones, si es un select, sino Otros atributos
-			],
-			[// Descripcion
-				"class" => 'col-md-6 mb-3', //Clase del div que lo contiene
-				"wdth" => 6, //Peso, si llega a 12 nuevo row
-				"type" => 'input', //select, input, legend, check, button, text
-				"disabled" => $a["b"],
-				"data" => ['type' => 'text','name' => 'DescPago', 'id' => 'DescPago', "placeholder" => "Descripción", 'class' => 'form-control',], //Opciones, si es un select, sino Otros atributos
-			],
-			[//Legend Importe
-				"class" => 'col-md-12', //Clase del div que lo contiene
-				"wdth" => 12, //Peso, si llega a 12 nuevo row
-				"type" => 'legend', //select, input, legend, check, button, text
-				"label" => 'Importe',
-			],
-			[// Soles
-				"class" => 'col-md-6 mb-3', //Clase del div que lo contiene
-				"wdth" => 6, //Peso, si llega a 12 nuevo row
-				"type" => 'input', //select, input, legend, check, button, text
-				"disabled" => $a["b"],
-				"data" => ['type' => 'number','name' => 'ImpPago', 'id' => 'ImpPago', "min" => "0", "max" => "1000", "placeholder" => "S/.", 'class' => 'form-control',], //Opciones, si es un select, sino Otros atributos
-			],
-			[// Dolares
-				"class" => 'col-md-6 mb-3', //Clase del div que lo contiene
-				"wdth" => 6, //Peso, si llega a 12 nuevo row
-				"type" => 'input', //select, input, legend, check, button, text
-				"disabled" => $a["b"],
-				"data" => ['type' => 'number','name' => 'ImpdPago', 'id' => 'ImpdPago', "min" => "0", "max" => "1000", "placeholder" => "$", 'class' => 'form-control',], //Opciones, si es un select, sino Otros atributos
-			],
-		];
+		
 		return $d;
 	}
 
+	
+
+	
 	// AJAX
+
+	public function ajaxguardar() 
+	{
+		//$ctrlfej = new Ctrl_fej;}
+		$t = false;
+		$dt = $this->request->getVar();
+		PrintForm::println("dt",$dt,$t);
+		try {
+			$ctrlM = new Ctrl_fejModel(); //referencia a modelo
+			$d = [
+				'FcreFej' =>$this->request->getVar('FcreFej'),
+				'FmodiFej'=>$this->request->getVar('FmodiFej'),
+				'IdUsu' =>$this->request->getVar('IdUsu')
+			];
+			$ctrlM->insert($d);
+			PrintForm::printlq($this->model,$t);
+		} catch (\Throwable $th) {
+			return $this->setResponseFormat('json')->respond(["r" => false, "msg" => "Error"]);
+			//throw $th;
+		}
+		return $this->setResponseFormat('json')->respond(["r" => true, "msg" => "Exito"]);
+		
+	}
+
+	public function ajaxupdate(){ //actualizar los datos en Ctrl_fej
+
+		//$ctrlfej = new Ctrl_fej;
+		$t = false;
+		$dt = $this->request->getVar();
+		PrintForm::println("dt",$dt,$t);
+		try {
+			$ctrlM = new Ctrl_fejModel(); //referencia a modelo
+			$id= $this->request->getVar('IdFej');
+			$d = [
+				'FcreFej' =>$this->request->getVar('FcreFej'),
+				'FmodiFej'=>$this->request->getVar('FmodiFej'),
+				'IdUsu' =>$this->request->getVar('IdUsu')
+			];
+			$ctrlM->update($id, $d);
+			PrintForm::printlq($this->model,$t);
+		} catch (\Throwable $th) {
+			return $this->setResponseFormat('json')->respond(["r" => false, "msg" => "Error"]);
+			//throw $th;
+		}
+		return $this->setResponseFormat('json')->respond(["r" => true, "msg" => "Exito"]);
+
+	}
+
+
+
 	public function ajaxlliq() //Ajax lista liquidaciones
 	{
 		$idu = session()->get("IdUsu");
-		$dt = $this->model->join("usuarios u","u.IdUsu = liqs.IdTrab")->where("IdTrab",$idu)->findAll();
+		$dt = $this->model->join("usuarios u","u.IdUsu = ctrl_fej.IdUsu")->where("ctrl_fej.IdUsu",$idu)->findAll();
 		return $this->setResponseFormat('json')->respond(["data" => $dt]);
 	}
+
 	public function ajaxlliqr() //Ajax lista liquidaciones revisor
 	{
 		$dt = $this->model
 			->select("IdLiq,FcreLiq,u.LogUsu,NroLiq,TotLiq,SalLiq,EstLiq")
-			->join("usuarios u","u.IdUsu = liqs.IdTrab")
+			->join("usuarios u","u.IdUsu = ctrl_fej.IdUsu")
 			->findAll();
 		return $this->setResponseFormat('json')->respond(["data" => $dt]);
 	}
-	public function ajaxeditar() //Editar Liquidacion
+	
+
+	
+
+
+	public function ajaxedit() //Editar Liquidacion
 	{
+		$ctrlM = new Ctrl_fejModel(); //referencia a modelo
+		$d['fej']=$ctrlM->where('IdFej', $id)->first();
 		$p = $this->request->getVar();
 		try {
 			$b = false;
 			// print_r($p);
 			// echo $p["IdLiq"]." ".(isset($p["IdLiq"])?"Iset":"Not Iset")." ".(isEmpty($p["IdLiq"]) ? "Is Empty" : "Not empty");
-			if(isset($p["IdRevisor"]) && $p["IdRevisor"] == "") $p["IdRevisor"] = null;
-			if(isset($p["IdLiq"]) && $p["IdLiq"] == "") $p["IdLiq"] = null;
-			$p["FupdLiq"] = date("Y-m-d H:i");
-			if(!isset($p["IdLiq"])) {
-				unset($p["IdLiq"]);
-				$p["IdTrab"] = session()->get("IdUsu");
-				$p["FcreLiq"] = date("Y-m-d H:i");
+			//if(isset($p["IdRevisor"]) && $p["IdRevisor"] == "") $p["IdRevisor"] = null;
+			if(isset($p["IdFej"]) && $p["IdFej"] == "") $p["IdFej"] = null;
+			//$p["FupdLiq"] = date("Y-m-d H:i");
+			if(!isset($p["IdFej"])) {
+				unset($p["IdFej"]);
+				$p["IdUsu"] = session()->get("IdUsu");
+				$p["FcreFej"] = session()->get("FcreFej");
+				$p["FmodiFej"] = session()->get("FmodiFej");
 				$b = $this->model->insert($p);
 			}
 			else{
-				$id = $p["IdLiq"];
-				unset($p["IdLiq"]);
+				$id = $p["IdFej"];
+				unset($p["IdFej"]);
 				$b = $this->model->update($id,$p);
 			}
 			if($b) return $this->setResponseFormat('json')->respond(["m" => "Operación Correcta", "r"=>true, "q" => $this->model->db->getLastQuery()->getQuery()]);
@@ -601,8 +358,10 @@ class Ctrl_fej extends BaseController
 		} catch (\Throwable $th) {
 			return $this->setResponseFormat('json')->respond(["m" => "Puede que no haya conexión o que haya un error en el servidor", "r"=>false, "q" => $this->model->db->getLastQuery()->getQuery()]); //.$th->getMessage()." ".$this->model->getLastQuery()->getQuery()
 		}
-		return redirect()->to('/liqs');
+		return redirect()->to('/ctrl_fej');
 	}
+
+
 	public function ajaxeli() //Eliminar una liquidacion
 	{
 		$id = $this->request->getVar("id");

@@ -51,3 +51,11 @@ if (file_exists(APPPATH . 'Config/' . ENVIRONMENT . '/Routes.php'))
 {
 	require APPPATH . 'Config/' . ENVIRONMENT . '/Routes.php';
 }
+
+
+//jquery Ajax CRUD - Ctrl_fej
+//$routes->post('Ctrl_fej/ajaxguardar', 'Ctrl_fej::ajaxguardar');
+//$routes->post('Ctrl_fej/ajaxupdate', 'Ctrl_fej::ajaxupdate');
+//$routes->get('Ctrl_fej/ajaxeditar/(:num)', 'Ctrl_fej::ajaxeditar/$1');
+
+

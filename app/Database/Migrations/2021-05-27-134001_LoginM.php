@@ -116,6 +116,8 @@ class LoginM extends Migration
 		$this->forge->addForeignKey('IdTUsu','tusuarios','IdTUsu');
 		$this->forge->addForeignKey('IdMenu','menus','IdMenu');
 		$this->forge->createTable('menus_tusuarios',true);
+
+		
 	}
 
 	public function down()

@@ -23,7 +23,7 @@
 					</ul>
 					<div class="tab-content">
 						<div class="tab-pane show active" id="tabs1">
-							<a style="color: white;" href="<?=base_url("liqs/nueva")?>" class="btn btn-primary mb-2"><i class="fas fa-plus"></i>&nbsp; Nueva</a>
+							<a style="color: white;" href="<?=base_url("ctrl_fej/nueva")?>" class="btn btn-primary mb-2" ><i class="fas fa-plus"></i>&nbsp; Nueva</a>
 							<table id="tliq" class="table table-striped table-bordered display" style="width:100%"></table>
 						</div>
 						<div class="tab-pane" id="tabs2">
@@ -36,6 +36,11 @@
 
 	</div>
 </div>
+
+
+
+
+
 
 <?= $this->endSection() ?>
 <?= $this->section('js') ?>
@@ -83,20 +88,12 @@
       order: [[ 2, 'asc' ]],
       columns: cols,
       columnDefs: [
-        {//Estado
-          render: function ( data, type, row ) {
-            l = {"0": "<a class='btn btn-rounded btn-danger' title='Por Revisar'></a>",
-				"1": "<a class='btn btn-rounded btn-primary' title='Completo'></a>", 
-				"2": "<a class='btn btn-rounded btn-success' title='Aceptado'></a>"}
-            return l[row.EstLiq];
-          },
-          targets: cols.length-2 //Column Estado
-        },
+        
         { //Acciones
             render: function ( data, type, row ) {
                 // console.log("ROW>",data,type,row);
-                return '<a href="'+cadenaurl+ctrl+"/editar/"+row.IdLiq+'" title="Editar Liquidacion" class="btn waves-effect btn-circle waves-light"><i class="ti-pencil-alt text-success"></i></a>'
-                + '<a onclick="ajaxeli('+row.IdLiq+')" title="Eliminar Liquidacion" class="btn waves-effect btn-circle waves-light"><i class="ti-close text-danger"></i></a>';
+                return '<a href="'+cadenaurl+ctrl+"/editar/"+row.IdFej+'" title="Editar Liquidacion" class="btn waves-effect btn-circle waves-light"><i class="ti-pencil-alt text-success"></i></a>'
+                + '<a onclick="ajaxeli('+row.IdFej+')" title="Eliminar Liquidacion" class="btn waves-effect btn-circle waves-light"><i class="ti-close text-danger"></i></a>';
             },
             targets: cols.length-1 //Column Acciones
         },

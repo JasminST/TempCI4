@@ -13,6 +13,7 @@
     <link rel="icon" type="image/png" sizes="16x16" href="<?= base_url("theme/src/assets/images/favicon.png") ?>">
     <link href="<?= base_url('theme/dist/css/style.min.css')?>" rel="stylesheet">
     <link href="<?= base_url('theme/src/assets/libs/sweetalert2/dist/sweetalert2.min.css')?>" rel="stylesheet">
+
     <!-- CSS -->
     <?php foreach ($css as $v) : ?>
         <link href="<?= $v ?>" rel="stylesheet"></script>
@@ -343,8 +344,11 @@
         })
     </script>
     <?= $this->renderSection('js') ?>
+    
 
 </body>
+
+
 
 <script type="text/javascript">
     var ctrl = "<?= (isset($this->data["ctrl"]) ? $this->data["ctrl"] : "") ?>";

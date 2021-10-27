@@ -14,6 +14,7 @@ class LoginS extends Seeder
 		$this->db->query('TRUNCATE tusuarios');
 		$this->db->query('TRUNCATE menus');
 		$this->db->query('TRUNCATE usuarios');
+		$this->db->query('TRUNCATE fej');
 		$this->db->enableForeignKeyChecks();
 
 		$all = [];
@@ -69,6 +70,15 @@ class LoginS extends Seeder
 				['JEFE 1','JEFE1',"Asdf1234","2"],
 				// ADMIN
 				['ADMIN 1','ADMIN1',"Asdf1234","3"],
+				
+			],
+		];
+		$all["fej"] = [
+			"camps" => [
+				'FcreFej','FmodiFej','IdUsu',
+			],
+			"data" => [
+				['2021-09-01','2021-10-01', "1"],
 				
 			],
 		];

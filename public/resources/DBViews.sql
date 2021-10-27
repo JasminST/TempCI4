@@ -2,7 +2,7 @@
 -- Toda línea debe: Tener Create or replace para fácil implementación, quitar Definer (Evitar problemas con usuarios en distintos entornos)
 
 -- Vista vmenu para la barra de links
-use dbtempirp;
+use dbrppsd;
 CREATE OR REPLACE
     ALGORITHM = UNDEFINED 
 VIEW `vmenu` AS
